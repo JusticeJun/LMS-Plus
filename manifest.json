@@ -7,7 +7,7 @@
         {
             "matches": ["https://lms.pknu.ac.kr/*"],
             "js": [
-                "adapter/pknuLmsAdapter.js",
+                "adapter/lmsAdapter.js",
                 "content.js"
             ]
         }
