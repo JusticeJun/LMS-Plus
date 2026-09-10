@@ -1,0 +1,347 @@
+#lms-plus-root {
+  & .lp-icon {
+    display: block;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  & .lp-rotate {
+    transform: rotate(180deg);
+  }
+  & .lp-icon-button {
+    position: relative;
+    min-width: 32px;
+    min-height: 36px;
+    border-radius: 9px;
+    color: #6485bd;
+  }
+  & .lp-icon-button:hover {
+    background: #edf5ff;
+  }
+  & .lp-avatar {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    background: #e1edff;
+    border-radius: 50%;
+    color: #7295cf;
+  }
+  & .lp-card {
+    width: 100%;
+    border: 1px solid #e7eff9;
+    border-radius: 18px;
+    background: #ffffffed;
+    padding: 18px;
+    box-shadow: 0 4px 24px #558ac004;
+  }
+  & .lp-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    min-height: 30px;
+  }
+  & .lp-card-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: auto;
+    flex-shrink: 0;
+  }
+  & .lp-card-title .lp-icon {
+    color: var(--lp-blue);
+    width: 28px;
+    height: 28px;
+  }
+  & .lp-text-button {
+    color: var(--lp-blue);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  & .lp-text-button .lp-icon {
+    width: 16px;
+    height: 16px;
+  }
+  & .lp-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #c7dafa;
+    border-radius: 12px;
+    padding: 6px 15px;
+    font-size: 12px;
+    color: var(--lp-blue);
+    background: #fff;
+    white-space: nowrap;
+  }
+  & .lp-outline .lp-icon {
+    width: 16px;
+    height: 16px;
+  }
+  & .lp-primary {
+    background: var(--lp-blue);
+    color: #fff;
+    border-radius: 22px;
+    padding: 10px 20px;
+    font-size: 13px;
+    box-shadow: 0 5px 14px #087bff20;
+  }
+  & .lp-primary:hover {
+    background: #0068e7;
+    color: #fff;
+  }
+  & .lp-primary .lp-icon {
+    width: 16px;
+    height: 16px;
+  }
+  & .lp-empty {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    text-align: center;
+    padding: 25px 16px;
+  }
+  & .lp-empty-icon {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    background: #f0f6ff;
+    border-radius: 20px;
+    color: #91aedb;
+    margin-bottom: 5px;
+  }
+  & .lp-empty-icon .lp-icon {
+    width: 32px;
+    height: 32px;
+    stroke-width: 1.4;
+  }
+  & .lp-empty strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6382b0;
+  }
+  & .lp-empty p {
+    color: #8096b6;
+    font-size: 12px;
+    max-width: 260px;
+    line-height: 1.8;
+    word-break: keep-all;
+  }
+  & .lp-status-pill,
+  & .lp-soft-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #eef4fc;
+    color: #728cb4;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  & .lp-status-pill {
+    margin-top: 5px;
+  }
+  & .lp-soft-pill {
+    font-size: 12px;
+  }
+  & .lp-login-state {
+    text-align: center;
+    padding-bottom: 24px;
+  }
+  & .lp-login-state .lp-empty {
+    padding-bottom: 15px;
+    min-height: 180px;
+  }
+  & .lp-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 2px 9px;
+    scrollbar-width: thin;
+    scrollbar-color: #d5e4f7 transparent;
+  }
+  & .lp-tabs button {
+    flex-shrink: 0;
+    gap: 5px;
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    background: #f0f4fc;
+    white-space: nowrap;
+  }
+  & .lp-tabs button.is-active {
+    background: var(--lp-blue);
+    color: white;
+  }
+  & .lp-dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    padding: 0;
+    width: min(620px, calc(100vw - 32px));
+    max-height: min(760px, calc(100dvh - 48px));
+    border: 1px solid #e2ebfa;
+    border-radius: 24px;
+    background: #fff;
+    color: var(--lp-navy);
+    box-shadow: 0 25px 100px #143a6e30;
+    overflow: auto;
+    font: inherit;
+  }
+  & .lp-dialog::backdrop {
+    background: #102e5d40;
+    backdrop-filter: blur(5px);
+  }
+  & .lp-dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    justify-content: space-between;
+    padding: 23px 26px;
+    background: #ffffffed;
+    border-bottom: 1px solid var(--lp-line);
+  }
+  & .lp-dialog-header h2 {
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+  & .lp-dialog-body {
+    padding: 25px 28px 32px;
+  }
+  & .lp-dialog-intro {
+    color: #7e95b8;
+    margin-bottom: 18px;
+  }
+  & .lp-muted {
+    color: #8095b5;
+    font-size: 12px;
+  }
+  & .lp-large-avatar {
+    display: grid;
+    place-items: center;
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: #eaf3ff;
+    color: #7da3dc;
+    margin: 0 auto 18px;
+  }
+  & .lp-large-avatar .lp-icon {
+    width: 42px;
+    height: 42px;
+  }
+  & .lp-loading {
+    min-height: 210px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 30px 10px;
+  }
+  & .lp-loading > span {
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #edf3fb, #f8fbff, #edf3fb);
+    background-size: 200% 100%;
+    animation: lp-shimmer 1.8s infinite;
+  }
+  & .lp-loading > span:nth-child(2) {
+    width: 85%;
+  }
+  & .lp-loading > span:nth-child(3) {
+    width: 65%;
+  }
+  & .lp-loading p {
+    text-align: center;
+    font-size: 12px;
+    color: #8095b5;
+  }
+}
+@keyframes lp-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+#lms-plus-root {
+  & .lp-card {
+    padding: 18px;
+  }
+}
+@media (max-width: 900px) {
+  #lms-plus-root {
+    & .lp-card {
+      padding: 16px;
+    }
+    & .lp-card-heading {
+      gap: 8px;
+    }
+    & .lp-card-title {
+      gap: 8px;
+    }
+  }
+}
+@media (max-width: 700px) {
+  #lms-plus-root {
+    & .lp-icon-button {
+      min-width: 29px;
+    }
+    & .lp-icon-button .lp-icon {
+      width: 21px;
+      height: 21px;
+    }
+    & .lp-card {
+      padding: 18px;
+    }
+  }
+}
+@media (max-width: 400px) {
+  #lms-plus-root {
+    & .lp-avatar {
+      width: 30px;
+      height: 30px;
+    }
+    & .lp-card {
+      padding: 15px;
+    }
+    & .lp-card-title .lp-icon {
+      width: 23px;
+      height: 23px;
+    }
+    & .lp-outline {
+      padding: 5px 9px;
+    }
+    & .lp-dialog-body {
+      padding: 20px;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #lms-plus-root .lp-loading > span {
+    animation: none;
+  }
+}
+
+#lms-plus-root {
+  & .lp-avatar,
+  & .lp-large-avatar {
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  & .lp-avatar > img,
+  & .lp-large-avatar > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+}

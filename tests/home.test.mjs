@@ -30,9 +30,16 @@ dom.window.HTMLDialogElement.prototype.close = function () {
 };
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 try {
-  const { Home } = await server.ssrLoadModule('/src/components/Home.tsx');
-  const adapter = await server.ssrLoadModule('/src/adapter/lmsAdapter.ts');
-  const { pendingFeed, localDateKey } = await server.ssrLoadModule('/src/models/home.ts');
+  const { HomePage: Home } = await server.ssrLoadModule('/src/pages/home/HomePage.tsx');
+  const adapter = {
+    ...(await server.ssrLoadModule('/src/adapter/home.ts')),
+    ...(await server.ssrLoadModule('/src/adapter/session.ts')),
+    ...(await server.ssrLoadModule('/src/adapter/notices.ts')),
+    ...(await server.ssrLoadModule('/src/adapter/courses.ts')),
+    ...(await server.ssrLoadModule('/src/content/lifecycle.ts')),
+  };
+  const { pendingFeed } = await server.ssrLoadModule('/src/models/feed.ts');
+  const { localDateKey } = await server.ssrLoadModule('/src/models/calendar.ts');
   const root = createRoot(document.getElementById('lms-plus-root'));
   const base = () => ({
     session: { status: 'authenticated', name: null },
@@ -45,7 +52,15 @@ try {
   });
   let key = 0;
   const render = async (data) =>
-    act(() => root.render(React.createElement(Home, { initialData: data, key: ++key })));
+    act(() =>
+      root.render(
+        React.createElement(Home, {
+          initialData: data,
+          key: ++key,
+          onRestore: adapter.showOriginalLms,
+        }),
+      ),
+    );
   const click = async (selector) => {
     const element = typeof selector === 'string' ? document.querySelector(selector) : selector;
     assert.ok(element, `Missing control: ${selector}`);
@@ -175,6 +190,18 @@ try {
     ),
   );
   assert.equal(document.querySelectorAll('.lp-todo-row').length, 1);
+  // Extracted card/dialog lists must keep the page's shared filter state.
+  await click(buttonText('전체보기'));
+  assert.equal(dialog().querySelectorAll('.lp-todo-row').length, 1);
+  assert.match(dialog().querySelector('.lp-todo-row').textContent, /TEST LATE/);
+  await click(
+    [...dialog().querySelectorAll('.lp-todo-tabs button')].find((button) =>
+      button.textContent.startsWith('시험'),
+    ),
+  );
+  await click('[aria-label="닫기"]');
+  assert.equal(document.querySelectorAll('.lp-todo-row').length, 1);
+  assert.match(document.querySelector('.lp-todo-row').textContent, /TEST EARLY/);
   assert.match(document.querySelector('.lp-calendar-detail').textContent, /TEST EVENT/);
   assert.ok(document.querySelector('.lp-day i'));
   await click('.lp-notice-list button');
@@ -222,6 +249,27 @@ try {
   });
   assert.match(document.querySelector('.lp-calendar-detail').textContent, /불러오지 못했/);
   assert.ok(document.querySelector('.lp-todo .lp-loading'));
+  // Course navigation is now composed by the page, not the DOM adapter.
+  // Exercise the real card callback so restoration must precede the LMS handler.
+  const courseSource = document.getElementById('wrap');
+  courseSource.innerHTML = '<em class="sub_open" kj="ui-course">[TEST] UI COURSE (01)</em>';
+  let courseClicks = 0;
+  courseSource.querySelector('em').onclick = () => {
+    assert.equal(document.body.classList.contains('lms-plus-home-page'), false);
+    courseClicks += 1;
+  };
+  const originalCourseMarkup = courseSource.innerHTML;
+  await render({
+    ...base(),
+    courses: {
+      status: 'ready',
+      items: [{ courseId: 'ui-course', name: 'UI COURSE', campus: 'TEST', section: '01' }],
+    },
+  });
+  document.body.classList.add('lms-plus-home-page');
+  await click('.lp-course-row');
+  assert.equal(courseClicks, 1);
+  assert.equal(courseSource.innerHTML, originalCourseMarkup);
   await act(() => root.unmount());
 
   const original = document.getElementById('wrap');
@@ -254,6 +302,7 @@ try {
     clicked = true;
     assert.equal(document.body.classList.contains('lms-plus-home-page'), false);
   };
+  adapter.showOriginalLms();
   adapter.openCourse('test-course');
   assert.equal(clicked, true);
   original.innerHTML = '';
@@ -271,7 +320,7 @@ try {
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(observed.notices.items[0].title, 'TEST UPDATED');
   disconnect();
-  const { safeLmsHref } = await server.ssrLoadModule('/src/adapter/links.ts');
+  const { safeLmsHref } = await server.ssrLoadModule('/src/adapter/urls.ts');
   assert.ok(safeLmsHref('/ilos/community/notice_view_form.acl?ARTL_NUM=test'));
   for (const value of [
     'javascript:alert(1)',

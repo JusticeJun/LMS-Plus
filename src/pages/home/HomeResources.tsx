@@ -1,6 +1,6 @@
-import { homeResources } from '../adapter/links';
-import { Icon } from './Icon';
-import { LmsLink } from './LmsLink';
+import { homeResources } from './resources';
+import { Icon } from '../../components/ui/Icon';
+import { LmsLink } from '../../components/ui/LmsLink';
 
 export function HomeResources() {
   return (

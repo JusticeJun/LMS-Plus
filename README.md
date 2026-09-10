@@ -29,3 +29,7 @@ To-do·쪽지·알림·개설과목의 실제 목록 및 공지 본문 통합은
 홈 하단은 별도 소개 문구 없이 서비스 카드로 이어집니다. 각 서비스 페이지도 이후 LMS+ 화면으로 확장할 예정입니다. 공통 푸터는 전체 너비 배경과 최대 1200px 내부 영역을 사용하며 좁은 화면에서는 줄바꿈합니다.
 
 오른쪽 대학 서비스 배너는 홈페이지·포털시스템·웨일비(비교과)의 이미지 카드 세 개로 구성합니다. 웨일비는 [학교 공식 비교과 안내](https://www.pknu.ac.kr/main/362)의 부경AI SSO 바로가기를 사용하며 로그인은 학교가 처리합니다. 헤더와 푸터는 공통 `LmsLayout`으로 재사용합니다.
+
+## 코드 탐색
+
+확장 진입점은 `src/content/index.tsx`, 홈 조합은 `src/pages/home/HomePage.tsx`입니다. 홈 전용 카드·대화상자·상태 훅은 `pages/home`, 공통 레이아웃과 UI는 `components/layout`과 `components/ui`, 원본 LMS 연결은 `adapter`, 공통 데이터 계약은 `models`에서 관리합니다. 자세한 폴더 책임과 새 기능 추가 기준은 [architecture.md](docs/architecture.md)를 참고하세요.

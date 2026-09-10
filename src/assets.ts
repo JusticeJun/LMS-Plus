@@ -1,4 +1,4 @@
-﻿// Resolve packaged images without requiring new extension permissions.
+// Resolve packaged images without requiring new extension permissions.
 // In the local preview Vite serves the same assets directly.
 export function assetUrl(path: string): string {
   const runtime = (

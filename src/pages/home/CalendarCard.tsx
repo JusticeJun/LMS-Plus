@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
-import { loadAcademicCalendar } from '../adapter/calendar';
-import { localDateKey, type CalendarEvent, type Feed, type Session } from '../models/home';
-import { CardTitle, FeedState } from './HomeUi';
-import { Icon } from './Icon';
+import { useState } from 'react';
+import { useAcademicCalendar } from './useAcademicCalendar';
+import { localDateKey, type CalendarEvent } from '../../models/calendar';
+import { type Feed } from '../../models/feed';
+import { type Session } from '../../models/session';
+import { CardTitle } from '../../components/ui/CardTitle';
+import { FeedState } from '../../components/ui/FeedState';
+import { Icon } from '../../components/ui/Icon';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -19,29 +22,14 @@ export function CalendarCard({
   sessionStatus,
   useProvidedEvents,
 }: CalendarCardProps) {
-  const [academicEvents, setAcademicEvents] = useState(initialEvents);
   const [selected, setSelected] = useState(today);
   const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
-  useEffect(() => {
-    if (useProvidedEvents) return;
-    const controller = new AbortController();
-    let active = true;
-    setAcademicEvents({ status: 'loading', items: [] });
-    const timeout = window.setTimeout(() => controller.abort(), 10000);
-    loadAcademicCalendar(month, controller.signal)
-      .then((result) => {
-        if (active) setAcademicEvents(result);
-      })
-      .catch(() => {
-        if (active) setAcademicEvents({ status: 'error', items: [] });
-      })
-      .finally(() => window.clearTimeout(timeout));
-    return () => {
-      active = false;
-      window.clearTimeout(timeout);
-      controller.abort();
-    };
-  }, [month, sessionStatus, useProvidedEvents]);
+  const academicEvents = useAcademicCalendar(
+    month,
+    sessionStatus,
+    initialEvents,
+    useProvidedEvents,
+  );
   const year = month.getFullYear(),
     monthIndex = month.getMonth();
   const firstDay = new Date(year, monthIndex, 1).getDay();

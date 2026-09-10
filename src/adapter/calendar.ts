@@ -1,4 +1,5 @@
-﻿import type { CalendarEvent, Feed } from '../models/home';
+import type { CalendarEvent } from '../models/calendar';
+import type { Feed } from '../models/feed';
 
 function normalizedDate(value: string): string | undefined {
   const match = value.match(/^(\d{4})\.(\d{2})\.(\d{2})$/);

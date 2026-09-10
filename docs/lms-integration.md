@@ -1596,3 +1596,7 @@ The public script populates `#ocw-list` and `#share-list` dynamically. Their ite
 ### Profile image adapter
 
 The home adapter now reads `src` from `#header img#user_photo` or an image inside `#header #user_photo`, using the header identifier referenced by the public LMS script. It only accepts HTTPS URLs on the LMS origin without embedded credentials, and only exposes the image for an authenticated session. No user-specific URL is constructed or persisted. The home observer tracks `src` changes; missing or failed images use the default avatar. Authenticated runtime markup and actual image loading still need Chrome verification; these image structures are covered by synthetic DOM tests, not a live account capture.
+
+### Source ownership after the home refactor
+
+DOM and request contracts above remain unchanged. Course extraction/clicking is in `src/adapter/courses.ts`; session/profile handling in `session.ts`; notice extraction in `notices.ts`; month transport/parsing in `calendar.ts`; URL validation in `urls.ts`; home aggregation/observation in `home.ts`. Original-screen restoration belongs to `src/content/lifecycle.ts`, and the page restores the original before invoking the course click. Home service-card labels and destinations belong to `src/pages/home/resources.ts` and still pass through the URL validator.

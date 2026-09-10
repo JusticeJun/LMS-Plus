@@ -1,7 +1,8 @@
-﻿import { createRoot } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { detectPage } from './page';
-import { Home } from '../components/Home';
-import { showOriginalLms } from '../adapter/lmsAdapter';
+import { HomePage } from '../pages/home/HomePage';
+import { useEffect } from 'react';
+import { showOriginalLms } from './lifecycle';
 
 if (
   detectPage() === 'home' &&
@@ -22,9 +23,17 @@ if (
         }),
       { once: true },
     );
-    root.render(<Home />);
+    root.render(<EnhancedHome />);
   } catch {
     showOriginalLms();
     element.remove();
   }
+}
+
+function EnhancedHome() {
+  useEffect(() => {
+    document.body.classList.add('lms-plus-home-page');
+    return () => document.body.classList.remove('lms-plus-home-page');
+  }, []);
+  return <HomePage onRestore={showOriginalLms} />;
 }

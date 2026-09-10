@@ -1,8 +1,8 @@
-import { assetUrl } from '../assets';
-import homepageImage from '../assets/pknu-homepage-banner.png';
-import portalImage from '../assets/pknu-portal-banner.png';
-import whalebeImage from '../assets/pknu-whalebe-banner.png';
-import { Icon } from './Icon';
+import { assetUrl } from '../../assets';
+import homepageImage from '../../assets/pknu-homepage-banner.png';
+import portalImage from '../../assets/pknu-portal-banner.png';
+import whalebeImage from '../../assets/pknu-whalebe-banner.png';
+import { Icon } from '../../components/ui/Icon';
 
 // Whalebe moved into the portal's 부경AI service. Do not use the retired domain.
 const universityLinks = [

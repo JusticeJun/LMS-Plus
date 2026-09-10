@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { LmsHeader } from './LmsHeader';
 import { LmsFooter } from './LmsFooter';
-import '../styles/home.css';
+import '../../styles/index.css';
 
 type LmsLayoutProps = {
   header: ComponentProps<typeof LmsHeader>;

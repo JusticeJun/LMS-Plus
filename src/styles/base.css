@@ -1,0 +1,104 @@
+body.lms-plus-home-page {
+  margin: 0 !important;
+  background: #eff7ff !important;
+}
+body.lms-plus-home-page > #wrap {
+  display: none !important;
+}
+#lms-plus-root[hidden] {
+  display: none !important;
+}
+#lms-plus-root {
+  --lp-blue: #087bff;
+  --lp-page-width: 985px;
+  --lp-navy: #0b2460;
+  --lp-muted: #7890b6;
+  --lp-line: #e6eef9;
+  display: block;
+  width: 100%;
+  color: var(--lp-navy);
+  font:
+    14px/1.6 'Malgun Gothic',
+    'Apple SD Gothic Neo',
+    sans-serif;
+  text-align: left;
+  & *,
+  & *::before,
+  & *::after {
+    box-sizing: border-box;
+  }
+  & h2,
+  & h3,
+  & p {
+    display: block;
+    position: static;
+    height: auto;
+    width: auto;
+    opacity: 1;
+    visibility: visible;
+    text-indent: 0;
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+  & h2 {
+    font-size: 20px;
+    line-height: 1.4;
+    letter-spacing: -0.6px;
+    color: var(--lp-navy);
+    font-weight: 700;
+  }
+  & h3 {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  & button,
+  & input,
+  & a {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+  }
+  & button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 0;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    text-align: inherit;
+    line-height: 1.5;
+    border-radius: 0;
+  }
+  & button:hover,
+  & a:hover {
+    color: var(--lp-blue);
+  }
+  & a {
+    text-decoration: none;
+  }
+  & button:focus-visible,
+  & a:focus-visible,
+  & input:focus-visible,
+  & summary:focus-visible {
+    outline: 3px solid #087bff;
+    outline-offset: 4px;
+  }
+  & img {
+    display: block;
+    max-width: 100%;
+    border: 0;
+  }
+  & main {
+    display: block;
+  }
+}
+@media (max-width: 900px) {
+  #lms-plus-root {
+    & h2 {
+      font-size: 18px;
+    }
+  }
+}

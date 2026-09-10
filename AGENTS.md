@@ -11,7 +11,7 @@ LMS+는 국립부경대학교 Smart-LMS의 사용성을 개선하는 비공식 C
 ## 구현 기준
 
 - 원본 LMS가 데이터와 동작의 기준이다. 원본 DOM을 보존하고 React는 독립 root에 렌더링한다. 실패하거나 원본으로 복귀할 때 기존 기능을 사용할 수 있어야 한다.
-- `src/content/`는 주입·마운트·해제, `src/adapter/`는 LMS selector·파싱·요청·기존 동작 호출, `src/models/`는 데이터 계약, `src/components/`와 `src/styles/`는 UI를 담당한다.
+- `src/content/`는 주입·마운트·해제, `src/adapter/`는 LMS selector·파싱·요청·기존 동작 호출, `src/models/`는 데이터 계약, `src/pages/<page>/`는 페이지 전용 UI와 상태, `src/components/layout/`과 `src/components/ui/`는 공통 UI를 담당한다. 모델은 Adapter를 참조하지 않고, Adapter와 공통 UI는 페이지나 확장 실행 코드를 참조하지 않는다. 상세 배치 기준은 `docs/architecture.md`를 따른다.
 - 실제로 확인된 데이터만 사용한다. 과목·교수·일정·과제·진행률·링크를 꾸며내지 않는다. 미연결·로딩·오류·확인된 빈 목록을 구분한다. 합성 데이터는 테스트 안에서만 사용한다.
 - 홈 디자인은 로컬 `imgs/image.png`가 있으면 직접 확인하고 기존 구현과 함께 기준으로 삼는다. 현재 기준은 최대 985px, hero와 본문을 감싼 큰 카드, 최소 바깥 여백과 유지된 내부 카드 간격이다. 임의의 일반 관리자 대시보드로 재해석하지 않는다.
 - 관련 없는 리팩터링, 서버·런타임 AI 기능, 별도 미리보기 도구를 선행 구현하지 않는다. 문서는 기존 README·아키텍처·연동 문서에 필요한 내용만 갱신하고 작업 보고서 파일을 늘리지 않는다.

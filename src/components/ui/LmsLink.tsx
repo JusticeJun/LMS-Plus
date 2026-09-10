@@ -1,5 +1,5 @@
-﻿import type { ReactNode } from 'react';
-import { safeLmsHref } from '../adapter/links';
+import type { ReactNode } from 'react';
+import { safeLmsHref } from '../../adapter/urls';
 export function LmsLink({
   href,
   children,

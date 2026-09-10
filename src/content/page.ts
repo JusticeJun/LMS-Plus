@@ -1,4 +1,4 @@
-﻿export type LmsPage = 'home' | 'unknown';
+export type LmsPage = 'home' | 'unknown';
 export function detectPage(): LmsPage {
   return window.top === window.self &&
     window.location.origin === 'https://lms.pknu.ac.kr' &&

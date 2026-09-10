@@ -1,10 +1,9 @@
-import logo from '../assets/pknu-logo.png?inline';
-import { showOriginalLms } from '../adapter/lmsAdapter';
-import { Icon } from './Icon';
+import logo from '../../assets/pknu-logo.png?inline';
+import { Icon } from '../ui/Icon';
 
-type LmsFooterProps = { onAbout: () => void; onHelp: () => void };
+type LmsFooterProps = { onAbout: () => void; onHelp: () => void; onRestore: () => void };
 
-export function LmsFooter({ onAbout, onHelp }: LmsFooterProps) {
+export function LmsFooter({ onAbout, onHelp, onRestore }: LmsFooterProps) {
   return (
     <footer className="lp-footer">
       <div className="lp-footer-inner">
@@ -15,7 +14,7 @@ export function LmsFooter({ onAbout, onHelp }: LmsFooterProps) {
         <div className="lp-footer-links">
           <button onClick={onAbout}>LMS+ 소개</button>
           <button onClick={onHelp}>이용 안내</button>
-          <button onClick={() => showOriginalLms()}>
+          <button onClick={onRestore}>
             원본 LMS 보기
             <Icon name="external" />
           </button>

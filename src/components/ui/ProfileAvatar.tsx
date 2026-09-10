@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { Session } from '../models/home';
-import { safeProfileImageUrl } from '../adapter/profile';
+import type { Session } from '../../models/session';
+import { safeProfileImageUrl } from '../../adapter/session';
 import { Icon } from './Icon';
 
 type ProfileAvatarProps = { session: Session; large?: boolean };

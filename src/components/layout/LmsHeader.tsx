@@ -1,25 +1,16 @@
-import { ProfileAvatar } from './ProfileAvatar';
-import type { Session } from '../models/home';
-import { Icon } from './Icon';
-import logo from '../assets/pknu-logo.png?inline';
-import { login } from '../adapter/lmsAdapter';
+import { ProfileAvatar } from '../ui/ProfileAvatar';
+import type { Session } from '../../models/session';
+import { Icon } from '../ui/Icon';
+import logo from '../../assets/pknu-logo.png?inline';
 
-export type Surface =
-  | 'about'
-  | 'ocw'
-  | 'messages'
-  | 'notifications'
-  | 'profile'
-  | 'courses'
-  | 'faq'
-  | 'notices'
-  | 'todos'
-  | 'programs';
 type Props = {
   session: Session;
   query: string;
   onQuery: (value: string) => void;
-  onOpen: (surface: Surface) => void;
+  onMessages: () => void;
+  onNotifications: () => void;
+  onProfile: () => void;
+  onLogin: () => void;
   onHome: () => void;
   messageCount: number | null;
   notificationCount: number | null;
@@ -28,7 +19,10 @@ export function LmsHeader({
   session,
   query,
   onQuery,
-  onOpen,
+  onMessages,
+  onNotifications,
+  onProfile,
+  onLogin,
   onHome,
   messageCount,
   notificationCount,
@@ -65,12 +59,7 @@ export function LmsHeader({
           />
         </label>
         <div className="lp-header-actions">
-          <button
-            className="lp-icon-button"
-            aria-label="쪽지"
-            title="쪽지"
-            onClick={() => onOpen('messages')}
-          >
+          <button className="lp-icon-button" aria-label="쪽지" title="쪽지" onClick={onMessages}>
             <Icon name="mail" />
             {messageCount !== null && messageCount > 0 && (
               <span className="lp-badge">{messageCount > 99 ? '99+' : messageCount}</span>
@@ -80,7 +69,7 @@ export function LmsHeader({
             className="lp-icon-button"
             aria-label="알림"
             title="알림"
-            onClick={() => onOpen('notifications')}
+            onClick={onNotifications}
           >
             <Icon name="bell" />
             {notificationCount !== null && notificationCount > 0 && (
@@ -88,14 +77,14 @@ export function LmsHeader({
             )}
           </button>
           {session.status === 'guest' ? (
-            <button className="lp-login" onClick={login}>
+            <button className="lp-login" onClick={onLogin}>
               <Icon name="login" />
               로그인
             </button>
           ) : (
             <button
               className="lp-profile"
-              onClick={() => onOpen('profile')}
+              onClick={onProfile}
               aria-label={session.status === 'authenticated' ? '프로필' : '로그인 상태 확인'}
             >
               <ProfileAvatar session={session} />
