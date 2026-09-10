@@ -1,0 +1,37 @@
+{
+  "name": "lms-plus",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An unofficial Chrome extension for enhancing PKNU Smart-LMS.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node tests/home.test.mjs",
+    "format": "prettier --write src tests vite.config.ts tsconfig.json public/manifest.json package.json",
+    "format:check": "prettier --check src tests vite.config.ts tsconfig.json public/manifest.json package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JusticeJun/LMS-Plus.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JusticeJun/LMS-Plus/issues"
+  },
+  "homepage": "https://github.com/JusticeJun/LMS-Plus#readme",
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "jsdom": "^30.0.1",
+    "prettier": "3.6.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  }
+}

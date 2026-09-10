@@ -1,7 +1,31 @@
 # LMS+
 
-LMS+ is an unofficial Chrome extension that improves the experience of using PKNU Smart-LMS.
+국립부경대학교 Smart-LMS의 사용성을 개선하는 비공식 Chrome 확장 프로그램입니다.
 
-The project is in an early stage of development. LMS+ is intended to work as an enhancement layer on top of the existing LMS, not as a replacement for it. Access to the original LMS features will remain available.
+## 개발 및 확인
 
-The current development direction uses a Chrome Extension with React and TypeScript. Specific libraries and packages have not yet been decided.
+- `npm ci`: 의존성 설치
+- `npm run build`: `dist/` 빌드
+- Chrome 확장 프로그램 관리에서 개발자 모드를 켜고 `dist/`를 압축해제 확장 프로그램으로 로드
+- 수정 후 확장 프로그램을 다시 로드하고 LMS 홈 새로고침
+- `npm run dev`: 확장 빌드 감시
+- `npm run typecheck`, `npm test`: 타입 및 기능·보안 회귀 검증
+- `npm run format`, `npm run format:check`: 소스·테스트·설정의 포맷 적용 및 검사
+
+## 현재 범위
+
+홈의 헤더·달력·수강과목·공지·To-do UI를 제공하며 실제 로그인 상태, 수강과목, 공지 목록을 원본 DOM에서 읽습니다. 학사일정은 LMS의 확인된 월별 조회 요청으로 연결합니다.
+
+To-do·쪽지·알림·개설과목의 실제 목록 및 공지 본문 통합은 아직 미연결입니다. 홈 하단에 소모임·OCW·질의응답·자료실의 확인된 원본 페이지 바로가기를 제공합니다. 소모임과 OCW 목록 자체는 홈에 통합하지 않습니다. 확인되지 않은 항목을 만들어내거나 ‘모두 완료’라고 표시하지 않습니다. 오른쪽 공통 패널은 별도 작업 범위입니다.
+
+홈 경로의 최상위 문서에서만 실행합니다. 로그인 폼·강의 플레이어·시험 페이지에는 주입하지 않습니다. 계정·쿠키를 별도로 읽거나 저장하지 않으며 외부 수집·분석·AI 요청을 사용하지 않습니다. 원본 LMS 보기를 누르면 홈 UI를 해제합니다.
+
+실제 Chrome에서 로그인 전후, 월 이동, 원본 복귀 및 과목 이동을 확인한 뒤 배포해야 합니다. 자동 검증과 의존성 감사만으로 보안이 보장되지는 않습니다.
+
+구조는 [architecture.md](docs/architecture.md), 실제 LMS 연동 계약은 [lms-integration.md](docs/lms-integration.md)를 참고하세요.
+
+상단 메뉴는 교육현황·커뮤니티·소개 세 개입니다. 이 메뉴는 독립 페이지용이며 홈 내부 공지나 소개 대화상자를 열지 않습니다. 홈을 교육현황의 활성 페이지로 표시하지 않습니다. 별도 브랜치에서 각 페이지를 만든 후 연결할 때까지 메뉴는 비활성입니다. 푸터의 LMS+ 소개는 확장 프로그램 안내입니다.
+
+홈 하단은 별도 소개 문구 없이 서비스 카드로 이어집니다. 각 서비스 페이지도 이후 LMS+ 화면으로 확장할 예정입니다. 공통 푸터는 전체 너비 배경과 최대 1200px 내부 영역을 사용하며 좁은 화면에서는 줄바꿈합니다.
+
+오른쪽 대학 서비스 배너는 홈페이지·포털시스템·웨일비(비교과)의 이미지 카드 세 개로 구성합니다. 웨일비는 [학교 공식 비교과 안내](https://www.pknu.ac.kr/main/362)의 부경AI SSO 바로가기를 사용하며 로그인은 학교가 처리합니다. 헤더와 푸터는 공통 `LmsLayout`으로 재사용합니다.

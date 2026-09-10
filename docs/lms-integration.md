@@ -1538,3 +1538,61 @@ LMS+ should treat Smart-LMS DOM structures as an external integration contract r
 This reference represents the structures verified during the LMS+ integration survey conducted in September 2026.
 
 It documents only the client-side structures required for LMS+ development and does not describe or imply access to PKNU Smart-LMS server internals.
+## Home refinement: September 9, 2026
+
+The public authenticated-home route was fetched without an account to verify the
+public header and notice markup. No personal session or authenticated content was
+captured. Runtime source markup remains authoritative; no live notice identifiers
+or titles are embedded in this repository.
+
+Verified public structures:
+
+- `#header li.header_login.login-btn-color`: guest login entry.
+- Header script references `#user` and `#user_photo` for profile navigation;
+  `.header_logout` is defined in header styles. Their authenticated runtime
+  presence/content still needs verification. Never infer login solely from the
+  absence of the login button.
+- Public notice anchors: `#contentsIndex .index-leftarea02 a.site-link` whose
+  `href` targets `/ilos/community/notice_view_form.acl` with a query string.
+- Public notice dates: the anchor's surrounding `li` contains `.date`.
+- `#ctl_notice_list` is also present but may initially be empty. Its absence of
+  rows does not establish that no notices exist.
+- Public top-level menu labels include education, community, introduction; OCW
+  is available under education. LMS+ presents these in its own header.
+
+Current home UI data contracts and explicit gaps are documented in
+[README.md](../README.md). Top-level education, community and introduction are separate page navigation, not home dialogs. They remain disabled until implemented on a subsequent branch. Utility dialogs do not introduce the future course Context Panel.
+
+### Verified home width
+
+On 2026-09-09, public `/ilos/css/ass.css` was inspected and its `global.css`
+import resolved. `https://lms.pknu.ac.kr/ilos/css/global.css` defines both
+`#wrap` and `#container` as `width: 985px`. The checked theme and PKNU-specific
+styles did not override those widths. LMS+ uses 985px as its desktop maximum
+for the header content and grouped hero/dashboard card. The shared footer now uses a full-width background with a 1200px maximum inner area.
+
+
+### Academic calendar read contract
+
+Verified against public `main_calendar.js` and a public response on 2026-09-09:
+
+- `POST /ilos/main/main_schedule_list.acl` is a month-list **read** operation. Fields: `year`, two-digit `month`, `day`, `viewDt` (YYYYMM), `encoding`.
+- The list is `#shedule_list_form .schedule_view_list_form`.
+- Academic rows use `.schedule-show-control.schedule_view_list_box` with `img[alt="학사일정"]`; the title is the child `div > span`. The immediately following `.schedule_view_detail_box .schedule_view_txt` contains `YYYY.MM.DD` or `YYYY.MM.DD ~ YYYY.MM.DD`.
+- Only academic rows are normalized. User-created or unverified row types are not interpreted as academic events. No personal values or captured HTML are committed.
+- The adapter uses the existing same-origin session, no-store requests, redirect rejection, timeout/cancellation and no persistent cache. Returned HTML stays in a detached template; only validated dates and text reach React. Missing/malformed structure is an error, not ‘no events’.
+- Month changes cancel obsolete requests. LMS schedule-setting, insertion, update and deletion endpoints are not called.
+
+Home content scripts are restricted to the top-level home route in ISOLATED world;
+login, exam and viewer pages remain outside injection scope. See the
+[Chrome manifest reference](https://developer.chrome.com/docs/extensions/reference/manifest/content-scripts).
+
+### Home resource navigation (2026-09-09)
+
+Public home HTML confirms links to `/ilos/community/share_group_list_form.acl` (groups), `/ilos/ocw/courseware_list_form.acl` (OCW), `/ilos/community/qna_list_form.acl` and `/ilos/community/material_list_form.acl`. Home resource cards navigate to these original forms through the adapter URL allow rules. Authentication and group membership remain owned by LMS; no joining or posting actions are reconstructed.
+
+The public script populates `#ocw-list` and `#share-list` dynamically. Their item markup and authenticated group states have not been verified in this task, so home cards provide navigation, not fabricated lists or empty-state claims. No new list requests are introduced.
+
+### Profile image adapter
+
+The home adapter now reads `src` from `#header img#user_photo` or an image inside `#header #user_photo`, using the header identifier referenced by the public LMS script. It only accepts HTTPS URLs on the LMS origin without embedded credentials, and only exposes the image for an authenticated session. No user-specific URL is constructed or persisted. The home observer tracks `src` changes; missing or failed images use the default avatar. Authenticated runtime markup and actual image loading still need Chrome verification; these image structures are covered by synthetic DOM tests, not a live account capture.

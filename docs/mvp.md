@@ -1,19 +1,10 @@
-# MVP Scope
+﻿# MVP Scope
 
-The current MVP is limited to the following:
+현재 작업은 홈 리디자인이다. 달력, To-do, 수강과목, 공지와 헤더를 완성하고 실제로 확인된 데이터만 연결한다. 세부 연결 상태는 README에서 관리한다.
 
-- A home view centered on enrolled courses and a calendar.
-- Messages, to-dos, and notifications shown in a right-side Context Panel.
-- Course pages retain the existing left-side navigation and weekly structure.
-- Detailed information and actions are shown in the right-side Context Panel.
-- To prevent clutter when many lecture-material attachments are available, attachment lists are collapsed by default where appropriate and can be expanded or collapsed as needed.
-- Download individual files.
-- Configure a download location for each course from the course UI.
-- Light and dark modes.
-- Continued access to existing LMS features.
-- LMS+ does not intervene on actual exam-taking pages.
-- LMS integration code is kept separate from the UI to accommodate changes to the PKNU LMS structure.
+후속 작업:
+- 홈·과목 화면에서 공유하는 오른쪽 Context Panel.
+- 왼쪽 주차/메뉴와 오른쪽 콘텐츠를 사용하는 과목 탐색.
+- 첨부파일 접근 및 다운로드 개선. 경로 설정은 브라우저 제약 확인 후 결정.
 
-## UX Principle
-
-The main view preserves the user's overall context and navigation state. Details and supporting actions for the selected item open in the right-side Context Panel, following the same interaction pattern for course details, messages, to-dos, and notifications. Closing the Context Panel returns the user to the previous view and position.
+원본 시험 응시·온라인강의 출석 추적을 재구현하지 않는다. 백엔드·동기화·AI는 현재 범위가 아니다. 기능 단위로 구현·검증하고 사용자가 확인한 뒤 커밋한다. 푸시와 merge는 별도 승인을 따른다.
