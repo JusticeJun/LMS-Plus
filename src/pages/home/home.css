@@ -201,11 +201,36 @@
     padding-top: 22px;
   }
   & .lp-todo-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
     gap: 13px;
     border-bottom: 1px solid var(--lp-line);
     padding: 18px 0;
-    align-items: flex-start;
+    align-items: start;
+  }
+  & .lp-todo-meta {
+    display: grid;
+    gap: 6px;
+    text-align: center;
+  }
+  & .lp-todo-meta .lp-kind {
+    white-space: nowrap;
+  }
+  & .lp-todo-dday {
+    color: var(--lp-navy);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  & .lp-todo-content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  & .lp-todo-content strong,
+  & .lp-todo-content strong > button {
+    display: block;
+    width: 100%;
+    text-align: left;
   }
   & .lp-todo-row:last-child {
     border-bottom: 0;

@@ -40,6 +40,12 @@ try {
   };
   const { pendingFeed } = await server.ssrLoadModule('/src/models/feed.ts');
   const { localDateKey } = await server.ssrLoadModule('/src/models/calendar.ts');
+  const { todoDday } = await server.ssrLoadModule('/src/models/todo.ts');
+  assert.equal(todoDday('2030-09-16T23:59:00+09:00', new Date('2030-09-12T00:01:00+09:00')), 'D-4');
+  assert.equal(todoDday('2030-09-13T23:59:00+09:00', new Date('2030-09-12T14:59:59Z')), 'D-1');
+  assert.equal(todoDday('2030-09-13T23:59:00+09:00', new Date('2030-09-12T15:00:00Z')), 'D-day');
+  assert.equal(todoDday('2030-09-13T23:59:00+09:00', new Date('2030-09-14T00:00:00+09:00')), 'D+1');
+  assert.equal(todoDday('invalid'), undefined);
   const root = createRoot(document.getElementById('lms-plus-root'));
   const base = () => ({
     session: { status: 'authenticated', name: null },
@@ -238,6 +244,12 @@ try {
   };
   await render(ready);
   assert.match(document.querySelector('.lp-todo-row').textContent, /TEST EARLY/);
+  assert.equal(document.querySelector('.lp-todo-meta .lp-kind').textContent, '시험');
+  assert.match(
+    document.querySelector('.lp-todo-meta .lp-todo-dday').textContent,
+    /^D(?:-day|[-+]\d+)$/,
+  );
+  assert.match(document.querySelector('.lp-todo-content').textContent, /TEST EARLY/);
   await click(
     [...document.querySelectorAll('.lp-todo-tabs button')].find((button) =>
       button.textContent.startsWith('과제'),
@@ -401,6 +413,91 @@ try {
   original.innerHTML =
     '<div id="header"><li class="header_login login-btn-color">로그인</li></div><em class="sub_open" kj="stale">[TEST] STALE COURSE (01)</em>';
   assert.equal(adapter.getHomeData().courses.items.length, 0);
+
+  const { parseTodos, loadTodos, openTodo } = await server.ssrLoadModule('/src/adapter/todos.ts');
+  const todoFixture = `<script>globalThis.__todoInjected = true</script>
+    <div class="todo_wrap on" onclick="goLecture('A20300000000001','123','project')">
+      <div class="todo_title">[팀프로젝트] TEST TASK</div><div class="todo_subjt">TEST COURSE</div>
+      <div class="todo_date"><span class="todo_d_day">D-3</span><span class="todo_date">2030.09.13 23:59</span></div>
+    </div><div id="no_data" class="todo_wrap no_data">조회할 자료가 없습니다.</div>`;
+  const parsedTodo = parseTodos(todoFixture);
+  assert.equal(parsedTodo.status, 'ready');
+  assert.equal(parsedTodo.items.length, 1);
+  assert.equal(parsedTodo.items[0].kind, '팀프로젝트');
+  assert.equal(parsedTodo.items[0].deadline, '2030-09-13T23:59:00+09:00');
+  assert.equal(globalThis.__todoInjected, undefined);
+  assert.equal(parseTodos('<div id="no_data" class="todo_wrap no_data"></div>').status, 'ready');
+  assert.equal(parseTodos('<form>login required</form>').status, 'error');
+  assert.equal(parseTodos(todoFixture.replace('2030.09.13', '2030.02.30')).status, 'error');
+  assert.equal(parseTodos(todoFixture.replace("'project'", "'unknown'")).status, 'error');
+  assert.equal(parseTodos(todoFixture.replace('goLecture(', 'evil(')).status, 'error');
+  assert.equal(parseTodos(todoFixture + todoFixture).status, 'error');
+  const beforeTodoFetch = globalThis.fetch;
+  const { useTodos } = await server.ssrLoadModule('/src/pages/home/useTodos.ts');
+  const probeHost = document.createElement('div');
+  const probeRoot = createRoot(probeHost);
+  let currentTodos;
+  function TodoProbe({ status }) {
+    currentTodos = useTodos(status);
+    return null;
+  }
+  try {
+    let resolveList;
+    let listSignal;
+    let calls = 0;
+    globalThis.fetch = (_url, options) => {
+      calls++;
+      listSignal = options.signal;
+      return new Promise((resolve) => {
+        resolveList = resolve;
+      });
+    };
+    await act(() => probeRoot.render(React.createElement(TodoProbe, { status: 'guest' })));
+    assert.equal(calls, 0);
+    await act(() => probeRoot.render(React.createElement(TodoProbe, { status: 'authenticated' })));
+    assert.equal(currentTodos.status, 'loading');
+    await act(async () => {
+      resolveList(new Response(todoFixture, { headers: { 'Content-Type': 'text/html' } }));
+    });
+    assert.equal(currentTodos.items.length, 1);
+    await act(() => probeRoot.render(React.createElement(TodoProbe, { status: 'guest' })));
+    assert.equal(currentTodos.items.length, 0);
+    assert.equal(listSignal.aborted, true);
+    await act(() => probeRoot.render(React.createElement(TodoProbe, { status: 'authenticated' })));
+    await act(() => probeRoot.unmount());
+    assert.equal(listSignal.aborted, true);
+    await act(async () => {
+      resolveList(new Response(todoFixture, { headers: { 'Content-Type': 'text/html' } }));
+    });
+    const signal = new AbortController().signal;
+    globalThis.fetch = async (url, options) => {
+      assert.equal(url, '/ilos/mp/todo_list.acl');
+      assert.equal(options.method, 'POST');
+      assert.equal(options.credentials, 'same-origin');
+      assert.equal(options.redirect, 'error');
+      assert.equal(options.signal, signal);
+      assert.equal(options.body.get('todoKjList'), '');
+      assert.equal(options.body.get('chk_cate'), 'ALL');
+      return new Response(todoFixture, { headers: { 'Content-Type': 'text/html' } });
+    };
+    assert.equal((await loadTodos(signal)).items.length, 1);
+    globalThis.fetch = async () => new Response('login', { status: 401 });
+    assert.equal((await loadTodos(signal)).status, 'error');
+    globalThis.fetch = async (url, options) => {
+      assert.equal(url, '/ilos/lo/st_room_auth_check2.acl');
+      assert.equal(options.body.get('ky'), 'A20300000000001');
+      return Response.json({ isError: true });
+    };
+    await assert.rejects(openTodo(parsedTodo.items[0].target, signal));
+    globalThis.fetch = async () => Response.json({});
+    await assert.rejects(openTodo(parsedTodo.items[0].target, signal));
+    const canceled = new AbortController();
+    canceled.abort();
+    globalThis.fetch = async () => Response.json({ isError: false });
+    await assert.rejects(openTodo(parsedTodo.items[0].target, canceled.signal));
+  } finally {
+    globalThis.fetch = beforeTodoFetch;
+  }
 
   const { parseAcademicCalendar, loadAcademicCalendar } = await server.ssrLoadModule(
     '/src/adapter/calendar.ts',

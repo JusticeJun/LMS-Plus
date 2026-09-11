@@ -3,7 +3,61 @@ import { Icon } from '../../components/ui/Icon';
 import { LmsLink } from '../../components/ui/LmsLink';
 import { login } from '../../adapter/session';
 import type { HomeData } from '../../models/home';
-import { sortedTodos, type TodoKind } from '../../models/todo';
+import { sortedTodos, todoDday, type TodoKind } from '../../models/todo';
+import type { Todo } from '../../models/todo';
+import { useEffect, useRef, useState } from 'react';
+import { openTodo } from '../../adapter/todos';
+
+function TodoTitle({ item }: { item: Todo }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(false);
+  const request = useRef<AbortController | null>(null);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(
+    () => () => {
+      request.current?.abort();
+      request.current = null;
+      window.clearTimeout(timer.current);
+    },
+    [],
+  );
+  const open = async () => {
+    if (!item.target || request.current) return;
+    const controller = new AbortController();
+    request.current = controller;
+    setBusy(true);
+    setError(false);
+    timer.current = window.setTimeout(() => controller.abort(), 10000);
+    try {
+      await openTodo(item.target, controller.signal);
+    } catch {
+      if (request.current === controller) setError(true);
+    } finally {
+      window.clearTimeout(timer.current);
+      if (request.current === controller) {
+        request.current = null;
+        setBusy(false);
+      }
+    }
+  };
+  return (
+    <>
+      {item.target ? (
+        <button type="button" onClick={open} disabled={busy}>
+          {item.title}
+          {busy ? ' · 확인 중' : ''}
+        </button>
+      ) : item.href ? (
+        <LmsLink href={item.href}>{item.title}</LmsLink>
+      ) : (
+        item.title
+      )}
+      {error && (
+        <span role="alert">항목을 열지 못했어요. 다시 시도하거나 원본 LMS에서 확인해 주세요.</span>
+      )}
+    </>
+  );
+}
 const TODO_FILTERS = [
   '전체',
   '과제',
@@ -26,6 +80,27 @@ const dateLabel = (date: string) => {
       }).format(value);
 };
 
+function useTodoToday() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    let timer: number;
+    const update = () => {
+      window.clearTimeout(timer);
+      const current = new Date();
+      setNow(current);
+      const untilMidnight = 86_400_000 - ((current.getTime() + 9 * 60 * 60 * 1000) % 86_400_000);
+      timer = window.setTimeout(update, untilMidnight);
+    };
+    update();
+    document.addEventListener('visibilitychange', update);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', update);
+    };
+  }, []);
+  return now;
+}
+
 export function TodoList({
   data,
   filter,
@@ -35,6 +110,7 @@ export function TodoList({
   filter: '전체' | TodoKind;
   onFilter: (filter: '전체' | TodoKind) => void;
 }) {
+  const now = useTodoToday();
   const todos = sortedTodos(data.todos.items).filter(
     (item) => filter === '전체' || item.kind === filter,
   );
@@ -77,14 +153,19 @@ export function TodoList({
         <div className="lp-todo-list">
           {todos.map((item) => (
             <div key={item.id} className="lp-todo-row">
-              <span
-                className={`lp-kind ${item.kind === '시험' ? 'is-exam' : item.kind === '온라인강의' ? 'is-lecture' : ''}`}
-              >
-                {item.kind}
-              </span>
-              <div>
+              <div className="lp-todo-meta">
+                <span
+                  className={`lp-kind ${item.kind === '시험' ? 'is-exam' : item.kind === '온라인강의' ? 'is-lecture' : ''}`}
+                >
+                  {item.kind}
+                </span>
+                {todoDday(item.deadline, now) && (
+                  <span className="lp-todo-dday">{todoDday(item.deadline, now)}</span>
+                )}
+              </div>
+              <div className="lp-todo-content">
                 <strong>
-                  {item.href ? <LmsLink href={item.href}>{item.title}</LmsLink> : item.title}
+                  <TodoTitle item={item} />
                 </strong>
                 <p>{item.course}</p>
                 <time dateTime={item.deadline}>{dateLabel(item.deadline)}</time>
@@ -100,9 +181,11 @@ export function TodoList({
             data.todos.status === 'ready' ? '남은 학습 항목이 없어요' : '나의 학습 일정이 모이는 곳'
           }
           description={
-            data.todos.status === 'ready'
-              ? '선택한 유형의 미완료 항목이 없습니다.'
-              : '과제부터 온라인강의까지, 마감일 순으로 정리해 드릴게요.'
+            data.todos.status === 'error'
+              ? '잠시 후 페이지를 새로고침하거나 원본 LMS에서 확인해 주세요.'
+              : data.todos.status === 'ready'
+                ? '선택한 유형의 미완료 항목이 없습니다.'
+                : '과제부터 온라인강의까지, 마감일 순으로 정리해 드릴게요.'
           }
         />
       )}
