@@ -12,11 +12,33 @@ export function safeProfileImageUrl(value: string | undefined): string | undefin
   }
 }
 
+export function profileDisplayImageUrl(value: string | undefined): string | undefined {
+  const safe = safeProfileImageUrl(value);
+  if (!safe) return undefined;
+  const url = new URL(safe);
+  // The LMS personal-info image was confirmed to return 100×100 with size=100.
+  // Keep the original identity/extension and leave every other source unchanged.
+  if (
+    url.pathname === '/ilos/mp/user_image_view.acl' &&
+    url.searchParams.get('id') &&
+    url.searchParams.get('ext') &&
+    url.searchParams.get('size') === '32'
+  ) {
+    url.searchParams.set('size', '100');
+  }
+  return url.href;
+}
+
 export function getProfileImageUrl(): string | undefined {
   const image = document.querySelector<HTMLImageElement>(
     '#header img#user_photo, #header #user_photo img',
   );
-  return safeProfileImageUrl(image?.getAttribute('src') ?? undefined);
+  // Reuse the resource the browser selected from srcset/picture, when present.
+  // Reading only src can downgrade a retina image to its fallback thumbnail.
+  return (
+    safeProfileImageUrl(image?.currentSrc) ??
+    safeProfileImageUrl(image?.getAttribute('src') ?? undefined)
+  );
 }
 
 // Verified public header and notice markup, inspected 2026-09-09.

@@ -113,6 +113,60 @@ try {
   assert.ok(document.querySelector('.lp-avatar svg'));
   await render({
     ...base(),
+    session: {
+      status: 'authenticated',
+      name: null,
+      photoUrl: '/test/photo.acl?id=TEST&ext=jpg&size=32',
+    },
+  });
+  assert.equal(
+    new URL(document.querySelector('.lp-avatar img').src).searchParams.get('size'),
+    '32',
+  );
+  assert.equal(
+    new URL(document.querySelector('.lp-avatar img').src).searchParams.get('id'),
+    'TEST',
+  );
+  // Unrelated image endpoints must not have their size rewritten.
+  assert.equal(
+    document.querySelector('.lp-avatar img').getAttribute('referrerpolicy'),
+    'same-origin',
+  );
+  await act(() => document.querySelector('.lp-avatar img').dispatchEvent(new Event('error')));
+  assert.ok(document.querySelector('.lp-avatar svg'));
+  await render({
+    ...base(),
+    session: {
+      status: 'authenticated',
+      name: null,
+      photoUrl: '/ilos/mp/user_image_view.acl?id=TEST&ext=jpg&size=32',
+    },
+  });
+  assert.equal(
+    document.querySelector('.lp-avatar img').src,
+    'https://lms.pknu.ac.kr/ilos/mp/user_image_view.acl?id=TEST&ext=jpg&size=100',
+  );
+  await act(() => document.querySelector('.lp-avatar img').dispatchEvent(new Event('error')));
+  assert.equal(
+    new URL(document.querySelector('.lp-avatar img').src).searchParams.get('size'),
+    '32',
+  );
+  await act(() => document.querySelector('.lp-avatar img').dispatchEvent(new Event('error')));
+  assert.ok(document.querySelector('.lp-avatar svg'));
+  await render({
+    ...base(),
+    session: {
+      status: 'authenticated',
+      name: null,
+      photoUrl: '/ilos/mp/user_image_view.acl?id=TEST&ext=jpg&size=100',
+    },
+  });
+  assert.equal(
+    new URL(document.querySelector('.lp-avatar img').src).searchParams.get('size'),
+    '100',
+  );
+  await render({
+    ...base(),
     session: { status: 'authenticated', name: null, photoUrl: 'https://evil.example/avatar.png' },
   });
   assert.equal(document.querySelector('.lp-avatar img'), null);
@@ -291,9 +345,21 @@ try {
   photo.src = '/test/updated.png';
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(profileUpdate.photoUrl, 'https://lms.pknu.ac.kr/test/updated.png');
+  let selectedPhoto = 'https://lms.pknu.ac.kr/test/avatar-2x.png';
+  Object.defineProperty(photo, 'currentSrc', { configurable: true, get: () => selectedPhoto });
+  photo.dispatchEvent(new Event('load'));
+  assert.equal(profileUpdate.photoUrl, selectedPhoto);
+  selectedPhoto = 'https://evil.example/avatar-2x.png';
+  assert.equal(adapter.getSession().photoUrl, 'https://lms.pknu.ac.kr/test/updated.png');
+  selectedPhoto = '';
   photo.src = 'https://evil.example/avatar.png';
   assert.equal(adapter.getSession().photoUrl, undefined);
   stopProfile();
+  const lastPhotoUpdate = profileUpdate;
+  selectedPhoto = 'https://lms.pknu.ac.kr/test/after-stop.png';
+  photo.dispatchEvent(new Event('load'));
+  assert.equal(profileUpdate, lastPhotoUpdate);
+  delete photo.currentSrc;
 
   assert.equal(adapter.getCourses()[0].name, 'TEST COURSE');
   document.body.classList.add('lms-plus-home-page');

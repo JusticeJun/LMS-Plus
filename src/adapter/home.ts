@@ -29,13 +29,25 @@ export function observeHome(onChange: (data: HomeData) => void): () => void {
     }
   };
   const observer = new MutationObserver(update);
+  const onImageLoad = (event: Event) => {
+    if (
+      event.target instanceof HTMLElement &&
+      event.target.matches('#header img#user_photo, #header #user_photo img')
+    )
+      update();
+  };
   observer.observe(source, {
     childList: true,
     subtree: true,
     characterData: true,
     attributes: true,
-    attributeFilter: ['kj', 'class', 'href', 'src'],
+    attributeFilter: ['kj', 'class', 'href', 'src', 'srcset', 'sizes', 'media'],
   });
+  // currentSrc changes after resource selection without changing the src attribute.
+  source.addEventListener('load', onImageLoad, true);
   update();
-  return () => observer.disconnect();
+  return () => {
+    observer.disconnect();
+    source.removeEventListener('load', onImageLoad, true);
+  };
 }
