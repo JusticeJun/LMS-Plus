@@ -182,6 +182,16 @@ Notifications
 popNotification(...)
 ```
 
+### Home To-do integration (verified from original functions and item DOM)
+
+- `popTodo()` loads `/ilos/mp/todo_list_form.acl` with POST (`TODO_CNT`, `encoding=utf-8`) to construct the original dialog. LMS+ does not open or execute this dialog.
+- Its `todoList()` reads `/ilos/mp/todo_list.acl` with POST: `todoKjList=''` (all courses), `chk_cate=ALL`, `encoding=utf-8`. The response is an HTML fragment, not JSON. LMS+ loads it once on authenticated home mount; a home refresh retrieves later changes.
+- Item rows: `.todo_wrap:not(.no_data)`; title: `.todo_title`; course: `.todo_subjt`; deadline: `span.todo_date` (`YYYY.MM.DD HH:mm`, Korea time). `.todo_d_day` is display text and is not used to calculate the deadline.
+- `goLecture(courseKey, seq, category)` is parsed as a strict data pattern, never evaluated. Categories: `lecture_weeks`, `report`, `project`, `discuss`, `test`, `survey`, `clicker` map respectively to 온라인강의, 과제, 팀프로젝트, 토론, 시험, 설문, 투표. A team-project row was directly observed; other mappings come from the original `listCount()` function and require live examples to verify their complete markup.
+- A response with no item rows must contain `#no_data.todo_wrap.no_data` to count as a confirmed empty result. Unrecognized rows, invalid dates, login HTML and transport failures produce an error, not a false empty result. Detached template parsing never executes response scripts or mounts server HTML.
+- Item navigation follows original `goLecture`: POST `/ilos/lo/st_room_auth_check2.acl` with `returnData=json`, `ky=courseKey`, `encoding=utf-8`, then navigate to `/ilos/mp/todo_list_connect.acl` with `SEQ`, `gubun`, `KJKEY`. LMS+ requires explicit boolean `isError: false`; the actual success response type still needs live verification. Missing or ambiguous permission responses fail closed. The general URL allowlist is unchanged.
+- Requests use the existing same-origin session, no-store and redirect rejection. The home hook and click operation impose a 10-second timeout and abort on unmount. No credentials or item data are persisted or logged. Real captures remain local and are not test fixtures.
+
 LMS+ may substantially redesign the authenticated home while retaining the original DOM as a data source and fallback.
 
 The primary LMS+ home content is expected to emphasize:
@@ -1582,6 +1592,7 @@ Verified against public `main_calendar.js` and a public response on 2026-09-09:
 - Only academic rows are normalized. User-created or unverified row types are not interpreted as academic events. No personal values or captured HTML are committed.
 - The adapter uses the existing same-origin session, no-store requests, redirect rejection, timeout/cancellation and no persistent cache. Returned HTML stays in a detached template; only validated dates and text reach React. Missing/malformed structure is an error, not ‘no events’.
 - Month changes cancel obsolete requests. LMS schedule-setting, insertion, update and deletion endpoints are not called.
+- Home date selection within the same year/month reuses the current response. Month arrows select the destination month’s first day. Per user-confirmed original LMS behavior, range events mark only their start/end dates; the selected-day list still includes ongoing events and always shows the full period below each title without a toggle. The home date refreshes at local midnight and on focus/visibility changes; an explicitly selected calendar date remains selected until navigation or Today is used.
 
 Home content scripts are restricted to the top-level home route in ISOLATED world;
 login, exam and viewer pages remain outside injection scope. See the
@@ -1595,7 +1606,9 @@ The public script populates `#ocw-list` and `#share-list` dynamically. Their ite
 
 ### Profile image adapter
 
-The home adapter now reads `src` from `#header img#user_photo` or an image inside `#header #user_photo`, using the header identifier referenced by the public LMS script. It only accepts HTTPS URLs on the LMS origin without embedded credentials, and only exposes the image for an authenticated session. No user-specific URL is constructed or persisted. The home observer tracks `src` changes; missing or failed images use the default avatar. Authenticated runtime markup and actual image loading still need Chrome verification; these image structures are covered by synthetic DOM tests, not a live account capture.
+The home adapter reads the browser-selected `currentSrc` from `#header img#user_photo` or an image inside `#header #user_photo`, falling back to `src`. This preserves the selected resource when LMS supplies `srcset`/`picture` alternatives instead of downgrading to the fallback thumbnail. It only accepts HTTPS URLs on the LMS origin without embedded credentials, and only exposes the image for an authenticated session. The home observer tracks source attributes and image load events because `currentSrc` can change without a `src` mutation; cleanup removes the listener.
+
+User-provided console diagnostics confirmed `/ilos/mp/user_image_view.acl` with `id`, `ext`, and `size=32` returning 32×32, and the personal-info photo using the same endpoint with `size=100` returning 100×100. LMS+ displays avatars at 36px/78px. `profileDisplayImageUrl` upgrades only this endpoint with nonempty `id`/`ext` and `size=32` to the confirmed `size=100`, preserving all other parameters. Other paths and sizes remain unchanged. The original header source stays in the session for fallback; load failure retries it before showing the default icon. A changed source resets error state. Same-origin referrers are retained. The unverified `size=160` variant is not used, as the user reported a placeholder with that earlier change; successful placeholder responses cannot be detected by an error event. Synthetic tests cover the 100px request, unchanged unrelated sources, fallback, recovery and origin validation. Actual enhanced-home rendering still requires Chrome verification; 100px improves source resolution but does not guarantee full 2x density for the 78px dialog avatar.
 
 ### Source ownership after the home refactor
 
