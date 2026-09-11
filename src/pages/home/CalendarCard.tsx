@@ -39,6 +39,11 @@ export function CalendarCard({
     (_, i) => new Date(year, monthIndex, i - firstDay + 1),
   );
   const dayKey = localDateKey(selected);
+  const moveMonth = (offset: number) => {
+    const next = new Date(year, monthIndex + offset, 1);
+    setMonth(next);
+    setSelected(next);
+  };
   const events = academicEvents.items.filter(
     (event) => event.date <= dayKey && (event.endDate ?? event.date) >= dayKey,
   );
@@ -47,21 +52,13 @@ export function CalendarCard({
       <div className="lp-card-heading">
         <CardTitle icon="calendar">학사일정</CardTitle>
         <div className="lp-month">
-          <button
-            className="lp-icon-button"
-            aria-label="이전 달"
-            onClick={() => setMonth(new Date(year, monthIndex - 1, 1))}
-          >
+          <button className="lp-icon-button" aria-label="이전 달" onClick={() => moveMonth(-1)}>
             <Icon name="chevron" className="lp-rotate" />
           </button>
           <strong aria-live="polite">
             {year}년 {monthIndex + 1}월
           </strong>
-          <button
-            className="lp-icon-button"
-            aria-label="다음 달"
-            onClick={() => setMonth(new Date(year, monthIndex + 1, 1))}
-          >
+          <button className="lp-icon-button" aria-label="다음 달" onClick={() => moveMonth(1)}>
             <Icon name="chevron" />
           </button>
         </div>
@@ -88,7 +85,7 @@ export function CalendarCard({
           {cells.map((date) => {
             const key = localDateKey(date);
             const hasEvent = academicEvents.items.some(
-              (event) => event.date <= key && (event.endDate ?? event.date) >= key,
+              (event) => event.date === key || event.endDate === key,
             );
             return (
               <button
@@ -117,6 +114,15 @@ export function CalendarCard({
               {events.map((event) => (
                 <li key={event.id}>
                   <strong>{event.title}</strong>
+                  <span className="lp-calendar-period">
+                    <time dateTime={event.date}>{event.date.replace(/-/g, '.')}</time>
+                    {event.endDate && event.endDate !== event.date && (
+                      <>
+                        {' ~ '}
+                        <time dateTime={event.endDate}>{event.endDate.replace(/-/g, '.')}</time>
+                      </>
+                    )}
+                  </span>
                   {event.description && <p>{event.description}</p>}
                 </li>
               ))}

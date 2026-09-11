@@ -153,6 +153,13 @@
     margin-top: 5px;
     color: #6b85ad;
   }
+  & .lp-calendar-period {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
   & .lp-course-list {
     display: flex;
     flex-direction: column;

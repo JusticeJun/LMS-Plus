@@ -4,6 +4,7 @@ import { NoticesCard } from './NoticesCard';
 import { CoursesCard } from './CoursesCard';
 import { TodoCard } from './TodoCard';
 import { useHomeData } from './useHomeData';
+import { useToday } from './useToday';
 import { useState } from 'react';
 import { type Surface } from './types';
 import { openCourse } from '../../adapter/courses';
@@ -30,7 +31,7 @@ export function HomePage({
 }) {
   const data = useHomeData(initialData);
   const [query, setQuery] = useState('');
-  const [today] = useState(() => new Date());
+  const today = useToday();
   const [surface, setSurface] = useState<Surface | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [todoFilter, setTodoFilter] = useState<'전체' | TodoKind>('전체');

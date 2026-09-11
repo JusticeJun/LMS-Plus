@@ -11,13 +11,15 @@ export function useAcademicCalendar(
   useProvidedEvents: boolean,
 ): Feed<CalendarEvent> {
   const [academicEvents, setAcademicEvents] = useState(initialEvents);
+  const year = month.getFullYear();
+  const monthIndex = month.getMonth();
   useEffect(() => {
     if (useProvidedEvents) return;
     const controller = new AbortController();
     let active = true;
     setAcademicEvents({ status: 'loading', items: [] });
     const timeout = window.setTimeout(() => controller.abort(), 10000);
-    loadAcademicCalendar(month, controller.signal)
+    loadAcademicCalendar(new Date(year, monthIndex, 1), controller.signal)
       .then((result) => {
         if (active) setAcademicEvents(result);
       })
@@ -30,6 +32,6 @@ export function useAcademicCalendar(
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [month, sessionStatus, useProvidedEvents]);
+  }, [year, monthIndex, sessionStatus, useProvidedEvents]);
   return academicEvents;
 }
