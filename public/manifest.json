@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "LMS+",
+  "version": "0.1.0",
+  "description": "An unofficial Chrome extension for enhancing PKNU Smart-LMS.",
+  "content_scripts": [
+    {
+      "matches": ["https://lms.pknu.ac.kr/ilos/main/main_form.acl*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "all_frames": false,
+      "world": "ISOLATED"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*.png"],
+      "matches": ["https://lms.pknu.ac.kr/*"]
+    }
+  ]
+}

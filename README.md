@@ -1,7 +1,37 @@
 # LMS+
 
-LMS+ is an unofficial Chrome extension that improves the experience of using PKNU Smart-LMS.
+국립부경대학교 Smart-LMS의 사용성을 개선하는 비공식 Chrome 확장 프로그램입니다.
 
-The project is in an early stage of development. LMS+ is intended to work as an enhancement layer on top of the existing LMS, not as a replacement for it. Access to the original LMS features will remain available.
+## 개발 및 확인
 
-The current development direction uses a Chrome Extension with React and TypeScript. Specific libraries and packages have not yet been decided.
+- `npm ci`: 의존성 설치
+- `npm run build`: `dist/` 빌드
+- Chrome 확장 프로그램 관리에서 개발자 모드를 켜고 `dist/`를 압축해제 확장 프로그램으로 로드
+- 수정 후 확장 프로그램을 다시 로드하고 LMS 홈 새로고침
+- `npm run dev`: 확장 빌드 감시
+- `npm run typecheck`, `npm test`: 타입 및 기능·보안 회귀 검증
+- `npm run format`, `npm run format:check`: 소스·테스트·설정의 포맷 적용 및 검사
+
+## 현재 범위
+
+홈의 헤더·달력·수강과목·공지·To-do UI를 제공하며 실제 로그인 상태, 수강과목, 공지 목록을 원본 DOM에서 읽습니다. 학사일정은 LMS의 확인된 월별 조회 요청으로 연결합니다.
+
+To-do는 로그인된 홈 진입 시 원본 목록을 조회해 유형별 필터와 마감일 정렬을 제공합니다. 카테고리 열의 폭을 통일하고 아래에 한국 날짜 기준 D-day를 표시합니다. 새 항목은 홈을 새로고침하면 반영됩니다. 실제 목록 표시는 사용자 확인을 마쳤으며, 상세 이동은 아직 정상 동작 확인이 안 된 후속 작업입니다. 쪽지·알림·개설과목의 실제 목록 및 공지 본문 통합은 아직 미연결입니다. 홈 하단에 소모임·OCW·질의응답·자료실의 확인된 원본 페이지 바로가기를 제공합니다. 소모임과 OCW 목록 자체는 홈에 통합하지 않습니다. 확인되지 않은 항목을 만들어내거나 ‘모두 완료’라고 표시하지 않습니다.
+
+이슈 #7의 홈 리디자인은 구현과 자동 검증을 마쳤으며, 사용자가 실제 Chrome에서 눈에 띄는 큰 문제가 없음을 확인했습니다. 주간 수업 시간표는 구현하지 않습니다. 다음 작업은 페이지 안에서 백경이가 돌아다니는 애니메이션입니다. 공통 오른쪽 Context Panel은 별도 후속 작업이며, To-do/공지 상세·쪽지·알림은 패널 기반 이후 기능별로 진행합니다. 마이페이지·개설과목은 패널이 아닌 주 콘텐츠 영역의 독립 페이지로 추후 구현합니다. 미연결 기능은 홈 리디자인 완료 범위에 포함하지 않습니다.
+
+홈 경로의 최상위 문서에서만 실행합니다. 로그인 폼·강의 플레이어·시험 페이지에는 주입하지 않습니다. 계정·쿠키를 별도로 읽거나 저장하지 않으며 외부 수집·분석·AI 요청을 사용하지 않습니다. 원본 LMS 보기를 누르면 홈 UI를 해제합니다.
+
+실제 Chrome에서 로그인 전후, 월 이동, 원본 복귀 및 과목 이동을 확인한 뒤 배포해야 합니다. 자동 검증과 의존성 감사만으로 보안이 보장되지는 않습니다.
+
+구조는 [architecture.md](docs/architecture.md), 실제 LMS 연동 계약은 [lms-integration.md](docs/lms-integration.md)를 참고하세요.
+
+상단 메뉴는 교육현황·커뮤니티·소개 세 개입니다. 이 메뉴는 독립 페이지용이며 홈 내부 공지나 소개 대화상자를 열지 않습니다. 홈을 교육현황의 활성 페이지로 표시하지 않습니다. 별도 브랜치에서 각 페이지를 만든 후 연결할 때까지 메뉴는 비활성입니다. 푸터의 LMS+ 소개는 확장 프로그램 안내입니다.
+
+홈 하단은 별도 소개 문구 없이 서비스 카드로 이어집니다. 각 서비스 페이지도 이후 LMS+ 화면으로 확장할 예정입니다. 공통 푸터는 전체 너비 배경과 최대 1200px 내부 영역을 사용하며 좁은 화면에서는 줄바꿈합니다.
+
+오른쪽 대학 서비스 배너는 홈페이지·포털시스템·웨일비(비교과)의 이미지 카드 세 개로 구성합니다. 웨일비는 [학교 공식 비교과 안내](https://www.pknu.ac.kr/main/362)의 부경AI SSO 바로가기를 사용하며 로그인은 학교가 처리합니다. 헤더와 푸터는 공통 `LmsLayout`으로 재사용합니다.
+
+## 코드 탐색
+
+확장 진입점은 `src/content/index.tsx`, 홈 조합은 `src/pages/home/HomePage.tsx`입니다. 홈 전용 카드·대화상자·상태 훅은 `pages/home`, 공통 레이아웃과 UI는 `components/layout`과 `components/ui`, 원본 LMS 연결은 `adapter`, 공통 데이터 계약은 `models`에서 관리합니다. 자세한 폴더 책임과 새 기능 추가 기준은 [architecture.md](docs/architecture.md)를 참고하세요.

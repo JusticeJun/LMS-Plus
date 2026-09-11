@@ -1,0 +1,20 @@
+import type { Feed } from './feed';
+import type { Session } from './session';
+import type { Course } from './course';
+import type { Notice } from './notice';
+import type { CalendarEvent } from './calendar';
+import type { Todo } from './todo';
+import type { InboxItem } from './inbox';
+import type { CatalogItem } from './catalog';
+export type HomeData = {
+  session: Session;
+  courses: Feed<Course>;
+  notices: Feed<Notice>;
+  events: Feed<CalendarEvent>;
+  todos: Feed<Todo>;
+  messages: Feed<InboxItem>;
+  notifications: Feed<InboxItem>;
+  availableCourses?: Feed<CatalogItem>;
+  publicCourses?: Feed<CatalogItem>;
+  programs?: Feed<CatalogItem>;
+};
